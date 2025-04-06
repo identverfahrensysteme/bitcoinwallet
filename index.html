@@ -148,7 +148,6 @@
   </div>
 
   <div class="dashboard hidden" id="dashboard">
-    <h3>Balance: <span id="btcAmount">Loading...</span> BTC</h3>
     <button onclick="openModal('depositModal')">Deposit</button>
     <button onclick="openModal('withdrawModal')">Withdraw</button>
     <button onclick="openModal('transactionModal')">Transactions</button>
@@ -206,12 +205,8 @@
 
   function openModal(id) {
     document.getElementById(id).style.display = 'flex';
-    if (id === 'depositModal') {
-      generateQRCode();
-    }
-    if (id === 'transactionModal') {
-      loadTransactions();
-    }
+    if (id === 'depositModal') generateQRCode();
+    if (id === 'transactionModal') loadTransactions();
   }
 
   function closeModal(id) {
@@ -248,7 +243,7 @@
   function login() {
     const email = document.getElementById('loginEmail').value;
     const pass = document.getElementById('loginPassword').value;
-    if (email === 'user@example.com' && pass === '123456') {
+    if (email === 'user77@walletbtc.com' && pass === 'user77@()') {
       document.getElementById('loginForm').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
     } else {
