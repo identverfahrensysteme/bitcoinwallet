@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet BTC</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --text: #fff;
+      --container: #161b22;
+      --input-bg: #1e2328;
+      --primary: #238636;
+      --secondary: #30363d;
+      --highlight: #39ff14;
+    }
+
+    [data-theme="light"] {
+      --bg: #f2f2f2;
+      --text: #111;
+      --container: #fff;
+      --input-bg: #e6e6e6;
+      --primary: #007bff;
+      --secondary: #ccc;
+      --highlight: #007bff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+    }
+
+    .welcome-message {
+      text-align: center;
+      padding: 20px 10px 10px;
+    }
+    .welcome-message h1 {
+      color: var(--highlight);
+    }
+
+    .login-container, .dashboard {
+      max-width: 420px;
+      margin: 0 auto 80px;
+      background: var(--container);
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid var(--secondary);
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: var(--container);
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid var(--secondary);
+      padding: 8px 0;
+    }
+
+    .footer-btn {
+      text-align: center;
+      color: var(--highlight);
+      font-size: 13px;
+    }
+
+    .footer-btn i {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-content {
+      background: var(--container);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    #qrcode {
+      margin: 10px auto;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <div class="top-controls">
+    <select id="langSwitcher" onchange="switchLang()">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+    <button onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+
+  <div class="welcome-message">
+    <h1 id="welcomeTitle">Welcome to Wallet BTC</h1>
+    <p id="welcomeSub">Your secure and fast crypto wallet</p>
+  </div>
+
+  <div class="login-container" id="loginForm">
+    <h2 id="loginTitle">Login</h2>
+    <input type="email" id="loginEmail" class="login-input" placeholder="Email" />
+    <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
+    <button class="login-button" onclick="login()">Login</button>
+    <p style="color:red;" id="loginError"></p>
+  </div>
+
+  <div class="dashboard hidden" id="dashboard">
+    <h3>Balance: <span id="btcAmount">Loading...</span> BTC</h3>
+    <button onclick="openModal('depositModal')">Deposit</button>
+    <button onclick="openModal('withdrawModal')">Withdraw</button>
+    <button onclick="openModal('transactionModal')">Transactions</button>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div class="modal" id="depositModal">
+    <div class="modal-content">
+      <h3>Deposit</h3>
+      <p>BTC Address:</p>
+      <p id="walletAddress">bc1qexampleaddress</p>
+      <div id="qrcode"></div>
+      <button class="login-button" onclick="saveTransaction('Deposit')">Save Transaction</button>
+      <button class="login-button" onclick="closeModal('depositModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- Transactions Modal -->
+  <div class="modal" id="transactionModal">
+    <div class="modal-content">
+      <h3>Transactions</h3>
+      <ul id="transactionList" style="text-align:left;"></ul>
+      <button class="login-button" onclick="closeModal('transactionModal')">Close</button>
+    </div>
+  </div>
+
+<script>
+  const translations = {
+    en: {
+      welcome: "Welcome to Wallet BTC",
+      sub: "Your secure and fast crypto wallet",
+      login: "Login"
+    },
+    es: {
+      welcome: "Bienvenido a Wallet BTC",
+      sub: "Tu billetera cripto segura y rápida",
+      login: "Iniciar sesión"
+    }
+  };
+
+  function switchLang() {
+    const lang = document.getElementById('langSwitcher').value;
+    localStorage.setItem('lang', lang);
+    document.getElementById('welcomeTitle').innerText = translations[lang].welcome;
+    document.getElementById('welcomeSub').innerText = translations[lang].sub;
+    document.getElementById('loginTitle').innerText = translations[lang].login;
+  }
+
+  function toggleTheme() {
+    const current = document.body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  }
+
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+    if (id === 'depositModal') {
+      generateQRCode();
+    }
+    if (id === 'transactionModal') {
+      loadTransactions();
+    }
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  function generateQRCode() {
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById("qrcode"), {
+      text: document.getElementById('walletAddress').innerText,
+      width: 128,
+      height: 128
+    });
+  }
+
+  function saveTransaction(type) {
+    const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
+    txs.push({ type, date: new Date().toLocaleString() });
+    localStorage.setItem('transactions', JSON.stringify(txs));
+    alert(type + ' transaction saved!');
+  }
+
+  function loadTransactions() {
+    const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
+    const list = document.getElementById('transactionList');
+    list.innerHTML = '';
+    txs.forEach(tx => {
+      const li = document.createElement('li');
+      li.innerText = `${tx.date} - ${tx.type}`;
+      list.appendChild(li);
+    });
+  }
+
+  function login() {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPassword').value;
+    if (email === 'user@example.com' && pass === '123456') {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+    } else {
+      document.getElementById('loginError').innerText = 'Invalid login.';
+    }
+  }
+
+  window.onload = () => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
+
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang) {
+      document.getElementById('langSwitcher').value = savedLang;
+      switchLang();
+    }
+  }
+</script>
+</body>
+</html>
