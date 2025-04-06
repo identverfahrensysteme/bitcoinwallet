@@ -1,3 +1,4 @@
+<!-- Full HTML code starts here -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wallet BTC</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #0d1117;
@@ -15,7 +17,6 @@
       --secondary: #30363d;
       --highlight: #39ff14;
     }
-
     [data-theme="light"] {
       --bg: #f2f2f2;
       --text: #111;
@@ -25,30 +26,23 @@
       --secondary: #ccc;
       --highlight: #007bff;
     }
-
     body {
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
     }
-
     .hidden { display: none; }
-
     .top-controls {
       display: flex;
       justify-content: space-between;
       padding: 10px 20px;
     }
-
     .welcome-message {
       text-align: center;
       padding: 20px 10px 10px;
     }
-    .welcome-message h1 {
-      color: var(--highlight);
-    }
-
+    .welcome-message h1 { color: var(--highlight); }
     .login-container, .dashboard {
       max-width: 420px;
       margin: 0 auto 80px;
@@ -56,7 +50,6 @@
       padding: 25px;
       border-radius: 12px;
     }
-
     .login-input {
       width: 100%;
       padding: 14px;
@@ -66,7 +59,6 @@
       background: var(--input-bg);
       color: var(--text);
     }
-
     .login-button {
       width: 100%;
       padding: 14px;
@@ -78,7 +70,6 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
     .footer {
       position: fixed;
       bottom: 0;
@@ -89,19 +80,16 @@
       border-top: 1px solid var(--secondary);
       padding: 8px 0;
     }
-
     .footer-btn {
       text-align: center;
       color: var(--highlight);
       font-size: 13px;
     }
-
     .footer-btn i {
       font-size: 24px;
       display: block;
       margin-bottom: 4px;
     }
-
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -111,7 +99,6 @@
       justify-content: center;
       z-index: 999;
     }
-
     .modal-content {
       background: var(--container);
       padding: 20px;
@@ -120,14 +107,42 @@
       max-width: 400px;
       text-align: center;
     }
-
-    #qrcode {
-      margin: 10px auto;
+    #qrcode { margin: 10px auto; }
+    .balance {
+      text-align: center;
+      font-size: 18px;
+      color: var(--highlight);
+      margin: 20px 0;
     }
+    iframe {
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      height: 500px;
+      box-shadow: 0 0 25px rgba(57, 255, 20, 0.4);
+      margin-top: 20px;
+    }
+    .chart-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .chart-buttons button {
+      padding: 18px 36px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      width: 150px;
+    }
+    .low-btn { background: #e55353; color: #fff; }
+    .high-btn { background: #4caf50; color: #fff; }
   </style>
 </head>
 <body data-theme="dark">
-
   <div class="top-controls">
     <select id="langSwitcher" onchange="switchLang()">
       <option value="en">English</option>
@@ -150,12 +165,35 @@
   </div>
 
   <div class="dashboard hidden" id="dashboard">
-    <button onclick="openModal('depositModal')">Deposit</button>
-    <button onclick="openModal('withdrawModal')">Withdraw</button>
-    <button onclick="openModal('transactionModal')">Transactions</button>
+    <div class="balance">
+      <p>Balance: 4,500,000.00 USDT</p>
+      <p>≈ <span id="btcAmount">Loading...</span> BTC</p>
+    </div>
+
+    <div class="chart-buttons">
+      <button class="low-btn" onclick="notifyOrder('Low')">Low</button>
+      <button class="high-btn" onclick="notifyOrder('High')">High</button>
+    </div>
+
+    <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark&style=1&hide_top_toolbar=1" allowfullscreen></iframe>
   </div>
 
-  <!-- Deposit Modal -->
+  <div class="footer hidden" id="footerNav">
+    <div class="footer-btn" onclick="openModal('depositModal')">
+      <i class="fas fa-arrow-down"></i>Deposit
+    </div>
+    <div class="footer-btn" onclick="openModal('withdrawModal')">
+      <i class="fas fa-arrow-up"></i>Withdraw
+    </div>
+    <div class="footer-btn" onclick="openModal('transactionModal')">
+      <i class="fas fa-list-alt"></i>Transactions
+    </div>
+    <div class="footer-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i>Logout
+    </div>
+  </div>
+
+  <!-- Modals -->
   <div class="modal" id="depositModal">
     <div class="modal-content">
       <h3>Deposit</h3>
@@ -166,8 +204,6 @@
       <button class="login-button" onclick="closeModal('depositModal')">Close</button>
     </div>
   </div>
-
-  <!-- Withdraw Modal (optional if needed) -->
   <div class="modal" id="withdrawModal">
     <div class="modal-content">
       <h3>Withdraw</h3>
@@ -175,8 +211,6 @@
       <button class="login-button" onclick="closeModal('withdrawModal')">Close</button>
     </div>
   </div>
-
-  <!-- Transactions Modal -->
   <div class="modal" id="transactionModal">
     <div class="modal-content">
       <h3>Transactions</h3>
@@ -185,94 +219,117 @@
     </div>
   </div>
 
-<script>
-  const translations = {
-    en: {
-      welcome: "Welcome to Wallet BTC",
-      sub: "Your secure and fast crypto wallet",
-      login: "Login"
-    },
-    es: {
-      welcome: "Bienvenido a Wallet BTC",
-      sub: "Tu billetera cripto segura y rápida",
-      login: "Iniciar sesión"
+  <script>
+    const translations = {
+      en: {
+        welcome: "Welcome to Wallet BTC",
+        sub: "Your secure and fast crypto wallet",
+        login: "Login"
+      },
+      es: {
+        welcome: "Bienvenido a Wallet BTC",
+        sub: "Tu billetera cripto segura y rápida",
+        login: "Iniciar sesión"
+      }
+    };
+
+    function switchLang() {
+      const lang = document.getElementById('langSwitcher').value;
+      localStorage.setItem('lang', lang);
+      document.getElementById('welcomeTitle').innerText = translations[lang].welcome;
+      document.getElementById('welcomeSub').innerText = translations[lang].sub;
+      document.getElementById('loginTitle').innerText = translations[lang].login;
     }
-  };
 
-  function switchLang() {
-    const lang = document.getElementById('langSwitcher').value;
-    localStorage.setItem('lang', lang);
-    document.getElementById('welcomeTitle').innerText = translations[lang].welcome;
-    document.getElementById('welcomeSub').innerText = translations[lang].sub;
-    document.getElementById('loginTitle').innerText = translations[lang].login;
-  }
-
-  function toggleTheme() {
-    const current = document.body.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  }
-
-  function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-    if (id === 'depositModal') generateQRCode();
-    if (id === 'transactionModal') loadTransactions();
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-  }
-
-  function generateQRCode() {
-    document.getElementById('qrcode').innerHTML = '';
-    new QRCode(document.getElementById("qrcode"), {
-      text: document.getElementById('walletAddress').innerText,
-      width: 128,
-      height: 128
-    });
-  }
-
-  function saveTransaction(type) {
-    const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
-    txs.push({ type, date: new Date().toLocaleString() });
-    localStorage.setItem('transactions', JSON.stringify(txs));
-    alert(type + ' transaction saved!');
-  }
-
-  function loadTransactions() {
-    const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
-    const list = document.getElementById('transactionList');
-    list.innerHTML = '';
-    txs.forEach(tx => {
-      const li = document.createElement('li');
-      li.innerText = `${tx.date} - ${tx.type}`;
-      list.appendChild(li);
-    });
-  }
-
-  function login() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPassword').value.trim();
-
-    if (email === 'user77@walletbtc.com' && pass === 'user77@()') {
-      document.getElementById('loginForm').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-    } else {
-      document.getElementById('loginError').innerText = 'Invalid login.';
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
     }
-  }
 
-  window.onload = () => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
-
-    const savedLang = localStorage.getItem('lang');
-    if (savedLang) {
-      document.getElementById('langSwitcher').value = savedLang;
-      switchLang();
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+      if (id === 'depositModal') generateQRCode();
+      if (id === 'transactionModal') loadTransactions();
     }
-  }
-</script>
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function generateQRCode() {
+      document.getElementById('qrcode').innerHTML = '';
+      new QRCode(document.getElementById("qrcode"), {
+        text: document.getElementById('walletAddress').innerText,
+        width: 128,
+        height: 128
+      });
+    }
+
+    function saveTransaction(type) {
+      const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
+      txs.push({ type, date: new Date().toLocaleString() });
+      localStorage.setItem('transactions', JSON.stringify(txs));
+      alert(type + ' transaction saved!');
+    }
+
+    function loadTransactions() {
+      const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
+      const list = document.getElementById('transactionList');
+      list.innerHTML = '';
+      txs.forEach(tx => {
+        const li = document.createElement('li');
+        li.innerText = `${tx.date} - ${tx.type}`;
+        list.appendChild(li);
+      });
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value.trim();
+      if (email === 'user77@walletbtc.com' && pass === 'user77@()') {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('footerNav').classList.remove('hidden');
+        fetchBTCPrice();
+      } else {
+        document.getElementById('loginError').innerText = 'Invalid login.';
+      }
+    }
+
+    async function fetchBTCPrice() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+        const data = await res.json();
+        const btcPrice = data.bitcoin.usd;
+        const usdtAmount = 4500000;
+        const btcAmount = (usdtAmount / btcPrice).toFixed(6);
+        document.getElementById("btcAmount").innerText = `${btcAmount}`;
+      } catch {
+        document.getElementById("btcAmount").innerText = "Error";
+      }
+    }
+
+    function notifyOrder(type) {
+      alert(`Your ${type} order has been placed.`);
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    window.onload = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
+
+      const savedLang = localStorage.getItem('lang');
+      if (savedLang) {
+        document.getElementById('langSwitcher').value = savedLang;
+        switchLang();
+      }
+    }
+  </script>
 </body>
 </html>
+<!-- Full HTML code ends here -->
