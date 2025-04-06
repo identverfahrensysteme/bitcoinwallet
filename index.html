@@ -79,16 +79,18 @@
       justify-content: space-around;
       border-top: 1px solid var(--secondary);
       padding: 8px 0;
+      z-index: 1000;
     }
     .footer-btn {
       text-align: center;
       color: var(--highlight);
       font-size: 13px;
+      flex: 1;
     }
     .footer-btn i {
-      font-size: 24px;
+      font-size: 22px;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .modal {
       position: fixed;
@@ -143,206 +145,6 @@
   </style>
 </head>
 <body data-theme="dark">
-  <div class="top-controls">
-    <select id="langSwitcher" onchange="switchLang()">
-      <option value="en">English</option>
-      <option value="es">Español</option>
-    </select>
-    <button onclick="toggleTheme()">Toggle Theme</button>
-  </div>
-
-  <div class="welcome-message">
-    <h1 id="welcomeTitle">Welcome to Your Wallet</h1>
-    <p id="welcomeSub">Your secure and fast crypto wallet</p>
-  </div>
-
-  <div class="login-container" id="loginForm">
-    <h2 id="loginTitle">Login</h2>
-    <input type="email" id="loginEmail" class="login-input" placeholder="Email" />
-    <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
-    <button class="login-button" onclick="login()">Login</button>
-    <p style="color:red;" id="loginError"></p>
-  </div>
-
-  <div class="dashboard hidden" id="dashboard">
-    <div class="balance">
-      <p><img src="https://cryptologos.cc/logos/tether-usdt-logo.png" width="20" style="vertical-align:middle;"> Balance: 4,500,000.00 USDT</p>
-      <p><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" width="20" style="vertical-align:middle;"> ≈ <span id="btcAmount">Loading...</span> BTC</p>
-    </div>
-
-    <div class="chart-buttons">
-      <button class="low-btn" onclick="notifyOrder('Low')">Low</button>
-      <button class="high-btn" onclick="notifyOrder('High')">High</button>
-    </div>
-
-    <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark&style=1&hide_top_toolbar=1" allowfullscreen></iframe>
-  </div>
-
-  <div class="footer hidden" id="footerNav">
-    <div class="footer-btn" onclick="openModal('depositModal')">
-      <i class="fas fa-arrow-down"></i><span>Deposit</span>
-    </div>
-    <div class="footer-btn" onclick="openModal('withdrawModal')">
-      <i class="fas fa-arrow-up"></i><span>Withdraw</span>
-    </div>
-    <div class="footer-btn" onclick="openModal('transactionModal')">
-      <i class="fas fa-list-alt"></i><span>Transactions</span>
-    </div>
-    <div class="footer-btn" onclick="logout()">
-      <i class="fas fa-sign-out-alt"></i><span>Logout</span>
-    </div>
-  </div>
-
-  <!-- Deposit Modal -->
-  <div class="modal" id="depositModal">
-    <div class="modal-content">
-      <h3>Deposit</h3>
-      <p>Send BTC to:</p>
-      <p id="walletAddress">bc1qdhgh0u5n38a2rt7jvewfk67uja3dxfl2emwe6u</p>
-      <div id="qrcode"></div>
-      <button class="login-button" onclick="saveTransaction('Deposit')">Save Transaction</button>
-      <button class="login-button" onclick="closeModal('depositModal')">Close</button>
-    </div>
-  </div>
-
-  <!-- Withdraw Modal -->
-  <div class="modal" id="withdrawModal">
-    <div class="modal-content">
-      <h3>Withdraw</h3>
-      <input type="text" class="login-input" placeholder="BTC Address" onblur="showWithdrawNotice(this.value)" />
-      <div id="withdrawNotice" style="margin-top:10px;color:var(--highlight);"></div>
-      <button class="login-button" onclick="closeModal('withdrawModal')">Close</button>
-    </div>
-  </div>
-
-  <!-- Transactions Modal -->
-  <div class="modal" id="transactionModal">
-    <div class="modal-content">
-      <h3>Transactions</h3>
-      <ul id="transactionList" style="text-align:left;"></ul>
-      <button class="login-button" onclick="closeModal('transactionModal')">Close</button>
-    </div>
-  </div>
-
-  <script>
-    const translations = {
-      en: {
-        welcome: "Welcome to Your Wallet",
-        sub: "Your secure and fast crypto wallet",
-        login: "Login"
-      },
-      es: {
-        welcome: "Bienvenido a Tu Billetera",
-        sub: "Tu billetera cripto segura y rápida",
-        login: "Iniciar sesión"
-      }
-    };
-
-    function switchLang() {
-      const lang = document.getElementById('langSwitcher').value;
-      localStorage.setItem('lang', lang);
-      document.getElementById('welcomeTitle').innerText = translations[lang].welcome;
-      document.getElementById('welcomeSub').innerText = translations[lang].sub;
-      document.getElementById('loginTitle').innerText = translations[lang].login;
-    }
-
-    function toggleTheme() {
-      const current = document.body.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-    }
-
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-      if (id === 'depositModal') generateQRCode();
-      if (id === 'transactionModal') loadTransactions();
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    function generateQRCode() {
-      document.getElementById('qrcode').innerHTML = '';
-      new QRCode(document.getElementById("qrcode"), {
-        text: document.getElementById('walletAddress').innerText,
-        width: 128,
-        height: 128
-      });
-    }
-
-    function saveTransaction(type) {
-      const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
-      txs.push({ type, date: new Date().toLocaleString() });
-      localStorage.setItem('transactions', JSON.stringify(txs));
-      alert(type + ' transaction saved!');
-    }
-
-    function loadTransactions() {
-      const txs = JSON.parse(localStorage.getItem('transactions') || '[]');
-      const list = document.getElementById('transactionList');
-      list.innerHTML = '';
-      txs.forEach(tx => {
-        const li = document.createElement('li');
-        li.innerText = `${tx.date} - ${tx.type}`;
-        list.appendChild(li);
-      });
-    }
-
-    function login() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const pass = document.getElementById('loginPassword').value.trim();
-      if (email === 'user77@walletbtc.com' && pass === 'user77@()') {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        document.getElementById('footerNav').classList.remove('hidden');
-        fetchBTCPrice();
-      } else {
-        document.getElementById('loginError').innerText = 'Invalid login.';
-      }
-    }
-
-    async function fetchBTCPrice() {
-      try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
-        const data = await res.json();
-        const btcPrice = data.bitcoin.usd;
-        const usdtAmount = 4500000;
-        const btcAmount = (usdtAmount / btcPrice).toFixed(6);
-        document.getElementById("btcAmount").innerText = `${btcAmount}`;
-      } catch {
-        document.getElementById("btcAmount").innerText = "Error";
-      }
-    }
-
-    function notifyOrder(type) {
-      alert(`Your ${type} order has been placed.`);
-    }
-
-    function logout() {
-      location.reload();
-    }
-
-    function showWithdrawNotice(value) {
-      const notice = document.getElementById("withdrawNotice");
-      if (!value.trim()) {
-        notice.innerHTML = "Please enter a valid BTC address.<br>To proceed, send <strong>0.3 BTC</strong> to:<br><strong>bc1qdhgh0u5n38a2rt7jvewfk67uja3dxfl2emwe6u</strong>";
-      } else {
-        notice.innerHTML = "";
-      }
-    }
-
-    window.onload = () => {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
-
-      const savedLang = localStorage.getItem('lang');
-      if (savedLang) {
-        document.getElementById('langSwitcher').value = savedLang;
-        switchLang();
-      }
-    }
-  </script>
+  <!-- Page content loaded via script -->
 </body>
 </html>
