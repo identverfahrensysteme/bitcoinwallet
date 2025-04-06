@@ -240,11 +240,12 @@
     });
   }
 
-  function login() {
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPassword').value;
+ function login() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+
     if (email === 'user77@walletbtc.com' && pass === 'user77@()') {
-      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('loginForm').style.display = 'none';
       document.getElementById('dashboard').classList.remove('hidden');
     } else {
       document.getElementById('loginError').innerText = 'Invalid login.';
